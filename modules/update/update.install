@@ -188,3 +188,23 @@ function update_update_7001() {
 /**
  * @} End of "addtogroup updates-6.x-to-7.x"
  */
+
+/**
+ * Implements hook_update_N().
+ *
+ * Grant 'update notification' permission to users with permission to
+ * 'administer site configuration'.
+ *
+ * Up to now everyone with 'administer site configuration' permission
+ * receives error messages on admin pages whenever there are security updates
+ * to Drupal or contrib projects. As of update 7002, these notifications can be
+ * enabled or disabled by granting/revoking 'update notification' permission.
+ * This update grants 'update notification' permission to anyone who has had
+ * this permission through 'administer site configuration' in the past.
+ */
+function update_update_7002() {
+  $roles = user_roles(FALSE, 'administer site configuration');
+  foreach (array_keys($roles) as $rid) {
+    user_role_grant_permissions($rid, array('update notification'));
+  }
+}
