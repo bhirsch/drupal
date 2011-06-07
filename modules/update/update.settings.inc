@@ -43,7 +43,12 @@ function update_settings($form) {
       'all' => t('All newer versions'),
       'security' => t('Only security updates'),
     ),
-    '#description' => t('You can choose to send e-mail only if a security update is available, or to be notified about all newer versions. If there are updates available of Drupal core or any of your installed modules and themes, your site will always print a message on the <a href="@status_report">status report</a> page, and will also display an error message on administration pages if there is a security update.', array('@status_report' => url('admin/reports/status')))
+    '#description' => t('You can choose to send e-mail only if a security update is available, or to be notified about all newer versions. If there are updates available of Drupal core or any of your installed modules and themes, your site will always print a message on the <a href="@status_report">status report</a> page. Users with permission to receive <a href="@update_notifications">update notifications</a> will see an error message on administration pages if there is a security update.',
+      array(
+        '@status_report' => url('admin/reports/status'),
+        '@update_notifications' => url('admin/people/permissions',
+                                   array('fragment' => 'module-update')),
+      )),
   );
 
   $form = system_settings_form($form);

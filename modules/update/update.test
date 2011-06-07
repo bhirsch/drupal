@@ -64,7 +64,7 @@ class UpdateCoreTestCase extends UpdateTestHelper {
 
   function setUp() {
     parent::setUp('update_test', 'update');
-    $admin_user = $this->drupalCreateUser(array('administer site configuration', 'administer modules'));
+    $admin_user = $this->drupalCreateUser(array('administer site configuration', 'administer modules', 'update notification'));
     $this->drupalLogin($admin_user);
   }
 
@@ -224,6 +224,49 @@ class UpdateCoreTestCase extends UpdateTestHelper {
     variable_set('update_test_system_info', $setting);
   }
 
+}
+
+class UpdateLimitedPermissionsCoreTestCase extends UpdateTestHelper {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Update permissions',
+      'description' => "Confirm users without 'update notification' permission will not see security update warnings",
+      'group' => 'Update',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('update_test', 'update');
+    $admin_user = $this->drupalCreateUser(array('access administration pages', 'administer site configuration'));
+    $this->drupalLogin($admin_user);
+  }
+
+  /**
+   * Check the messages at admin page when missing a security update.
+   */
+  function testAdminPageSecurityUpdate() {
+    $this->setSystemInfo7_0();
+
+    // Instead of using refreshUpdateStatus(), set these manually.
+    variable_set('update_fetch_url', url('update-test', array('absolute' => TRUE)));
+    variable_set('update_test_xml_map', array('drupal' => '2-sec'));
+    $this->drupalGet('admin/reports/updates/check');
+
+    // Make sure admin page does NOT warn you you're missing a security update.
+    $this->drupalGet('admin');
+    $this->assertNoText(t('There are updates available for your version of Drupal.'));
+    $this->assertNoText(t('There is a security update available for your version of Drupal.'));
+  }
+
+  protected function setSystemInfo7_0() {
+    $setting = array(
+      '#all' => array(
+        'version' => '7.0',
+      ),
+    );
+    variable_set('update_test_system_info', $setting);
+  }
 }
 
 class UpdateTestContribCase extends UpdateTestHelper {
@@ -598,7 +641,7 @@ class UpdateTestUploadCase extends UpdateTestHelper {
   public function setUp() {
     parent::setUp('update', 'update_test');
     variable_set('allow_authorize_operations', TRUE);
-    $admin_user = $this->drupalCreateUser(array('administer software updates', 'administer site configuration'));
+    $admin_user = $this->drupalCreateUser(array('administer software updates', 'administer site configuration', 'update notification'));
     $this->drupalLogin($admin_user);
   }
 
